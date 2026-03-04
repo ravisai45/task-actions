@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Indian Weather App</title>
+  
+
+
+</head>
+<style>
+   body{
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+}
+
+.container{
+    width:90%;
+    max-width:1100px;
+    padding:30px;
+    text-align:center;
+}
+
+h1{
+    color:white;
+    margin-bottom:20px;
+}
+
+/* SEARCH BOX */
+
+.search-box{
+    margin-bottom:40px;
+}
+
+input{
+    padding:12px 15px;
+    width:260px;
+    border-radius:25px;
+    border:none;
+    outline:none;
+    font-size:16px;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:25px;
+    background:linear-gradient(45deg,#ff7e5f,#feb47b);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    margin-left:10px;
+    transition:0.3s;
+}
+
+button:hover{
+    transform:scale(1.05);
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* WEATHER GRID */
+
+.city-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:20px;
+}
+
+/* WEATHER CARD */
+
+.card{
+    backdrop-filter:blur(10px);
+    background:rgba(255,255,255,0.15);
+    border-radius:15px;
+    padding:20px;
+    color:white;
+    transition:0.3s;
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
+
+.card h3{
+    margin-bottom:10px;
+}
+
+.card p{
+    margin:6px 0;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    background:rgba(255,255,255,0.25);
+}
+</style>
+<body>
+
+<div class="container">
+    <h1>Indian Weather Dashboard</h1>
+
+    <div class="search-box">
+        <input type="text" id="cityInput" placeholder="Enter Indian city name">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <div id="weatherContainer" class="city-grid"></div>
+
+</div>
+
+<script>
+    const apiKey = "513154b5a79fea203f758b57197b2a49"; 
+
+const searchBtn = document.getElementById("searchBtn");
+const cityInput = document.getElementById("cityInput");
+const weatherContainer = document.getElementById("weatherContainer");
+
+const majorCities = [
+    "Mumbai",
+    "Delhi",
+    "Bengaluru",
+    "Hyderabad",
+    "Chennai",
+    "Kolkata",
+    "Ahmedabad",
+    "Visakhapatnam"
+];
+
+window.onload = () => {
+    loadMajorCities();
+};
+
+
+searchBtn.addEventListener("click", () => {
+    const city = cityInput.value.trim();
+    if (city !== "") {
+        weatherContainer.innerHTML = ""; 
+        fetchWeather(city);
+    }
+});
+
+function fetchWeather(city) {
+
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},IN&appid=${apiKey}&units=metric`;
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.cod !== 200) {
+                weatherContainer.innerHTML = "<p>City not found</p>";
+                return;
+            }
+
+            const card = document.createElement("div");
+            card.classList.add("card");
+
+            card.innerHTML = `
+                <h3>${data.name}</h3>
+                <p>Temp: ${data.main.temp} °C</p>
+                <p> ${data.weather[0].description}</p>
+                <p> Humidity: ${data.main.humidity}%</p>
+                <p> Wind: ${data.wind.speed} m/s</p>
+            `;
+
+            weatherContainer.appendChild(card);
+        })
+        .catch(() => {
+            weatherContainer.innerHTML = "<p>Error fetching data</p>";
+        });
+}
+
+function loadMajorCities() {
+    weatherContainer.innerHTML = "";
+    majorCities.forEach(city => fetchWeather(city));
+}
+</script>
+
+</body>
+</html>
